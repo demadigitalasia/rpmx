@@ -22,6 +22,13 @@
       "when": 1794403097000,
       "tag": "0002_expand_product_catalog",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794519515240,
+      "tag": "0003_nostalgic_risque",
+      "breakpoints": true
     }
   ]
 }
