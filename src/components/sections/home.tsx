@@ -143,7 +143,7 @@ export function DropsRow({ drops }: { drops: DropRow[] }) {
 
 /* -------------------------- Why RPMX — staggered -------------------------- */
 
-const STAGGER = ["", "lg:mt-8", "lg:mt-16", "lg:mt-24"] as const;
+const STAGGER = ["", "lg:mt-[190px]", "lg:mt-[340px]", "lg:mt-[490px]"] as const;
 
 export function WhyStaggered() {
   return (
@@ -152,16 +152,28 @@ export function WhyStaggered() {
         <SectionHeading prefix="kenapa" word="RPMX" />
         <div className="mt-14 grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
           {advantages.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.07} className={STAGGER[i]}>
-              <div>
-                <p className="font-raw text-xs uppercase leading-[1.8] tracking-[0.1em] text-raw-muted">
-                  {item.description}
-                </p>
-                <h3 className="mt-5 font-raw text-[clamp(2.2rem,3.5vw,3.6rem)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-raw-ink/25 transition-colors duration-300 hover:text-accent">
-                  {item.title}
-                </h3>
-              </div>
-            </Reveal>
+            <div
+              key={item.title}
+              className={
+                i > 0
+                  ? "lg:border-l lg:border-dashed lg:border-raw-line lg:pl-6"
+                  : undefined
+              }
+            >
+              <Reveal delay={i * 0.07} className={STAGGER[i]}>
+                <div>
+                  <p className="font-raw text-[16px] uppercase leading-[1.4] tracking-[0.05em] text-raw-ink">
+                    {item.description}
+                  </p>
+                  <h3 className="mt-20 font-raw text-[clamp(2.2rem,2.8vw,2.5rem)] font-bold uppercase leading-[0.95] tracking-[-0.03em] text-raw-ink transition-colors duration-300 hover:text-accent">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2.5 font-raw text-xs uppercase tracking-[0.14em] text-raw-muted">
+                    {item.sub}
+                  </p>
+                </div>
+              </Reveal>
+            </div>
           ))}
         </div>
       </div>

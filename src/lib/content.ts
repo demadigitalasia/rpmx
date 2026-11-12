@@ -41,6 +41,8 @@ export function getServiceIcon(name: string): LucideIcon {
 export type Advantage = {
   title: string;
   description: string;
+  /** Sub-label singkat di bawah judul (ala RAWLINE: "3-5 BUSINESS DAYS"). */
+  sub: string;
   icon: string;
 };
 
@@ -49,24 +51,28 @@ export const advantages: Advantage[] = [
     title: "Empat Lini Spesialis",
     description:
       "TRUE NORTH, POLARIS, OVERDRIVE, dan RPMX LIMITLESS memiliki fokus produk dan karakter masing-masing.",
+    sub: "4 lini brand RPMX",
     icon: "BadgeCheck",
   },
   {
     title: "Pengembangan Desain",
     description:
       "Desain dan personalisasi disesuaikan dengan kebutuhan serta identitas pelanggan.",
+    sub: "Desain sesuai identitas",
     icon: "PenTool",
   },
   {
     title: "Pilihan Material",
     description:
       "Material dipilih sesuai karakter produk, kenyamanan, dan kebutuhan pemakaian.",
+    sub: "Material terkurasi",
     icon: "Layers",
   },
   {
     title: "Produksi Terpadu",
     description:
       "Satu ekosistem produksi melayani individu, komunitas, organisasi, dan clothing brand.",
+    sub: "Satu ekosistem produksi",
     icon: "Factory",
   },
 ];
