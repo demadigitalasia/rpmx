@@ -1,0 +1,213 @@
+import { sql } from "drizzle-orm";
+import type { PgTable } from "drizzle-orm/pg-core";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import {
+  dropProducts,
+  drops,
+  galleryItems,
+  productCategories,
+  products,
+  services,
+  testimonials,
+} from "./schema";
+import {
+  DROP_PRODUCT_SLUGS,
+  fallbackCategories,
+  fallbackDrops,
+  fallbackProducts,
+} from "@/lib/catalog-fallback";
+
+/**
+ * Logika pengisian konten (dipakai `db:seed` dan route admin bootstrap).
+ * N1: tabel HANYA diisi bila kosong — hasil edit /admin tidak ditimpa.
+ * opts.fresh=true → hapus lalu isi ulang semua tabel konten (inquiry tak tersentuh).
+ */
+export async function seedContent<
+  TSchema extends Record<string, unknown> = Record<string, never>,
+>(
+  db: PostgresJsDatabase<TSchema>,
+  opts: { fresh?: boolean } = {},
+): Promise<Record<string, number>> {
+  const fresh = opts.fresh === true;
+  const filled: Record<string, number> = {};
+
+  async function shouldFill(table: PgTable, label: string) {
+    const [row] = await db.select({ n: sql<number>`count(*)` }).from(table);
+    const empty = Number(row?.n ?? 0) === 0;
+    if (!empty && !fresh) {
+      console.log(`— ${label} dilewati (sudah ada data; pakai --fresh untuk menimpa).`);
+      return false;
+    }
+    if (!empty) await db.delete(table);
+    return true;
+  }
+
+  if (await shouldFill(services, "layanan")) {
+    await db.insert(services).values([
+      {
+        slug: "jersey-custom",
+        title: "Jersey Custom",
+        description:
+          "Pembuatan jersey bola, futsal, basket, voli, dan olahraga lainnya dengan pilihan bahan sublimasi dan printing berkualitas tinggi.",
+        tags: ["Sublimasi", "Full Print", "Bordir"],
+        icon: "Shirt",
+        sortOrder: 1,
+      },
+      {
+        slug: "jaket-custom",
+        title: "Jaket Custom",
+        description:
+          "Produksi jaket kasual, hoodie, hingga jaket olahraga dengan desain bebas. Cocok untuk komunitas, organisasi, dan corporate.",
+        tags: ["Hoodie", "Varsity", "Windbreaker"],
+        icon: "Wind",
+        sortOrder: 2,
+      },
+      {
+        slug: "baju-custom",
+        title: "Baju Custom",
+        description:
+          "Konveksi kaos, polo shirt, kemeja, dan baju kasual sesuai kebutuhan Anda. Minimal order fleksibel untuk berbagai skala.",
+        tags: ["Kaos", "Polo", "Kemeja"],
+        icon: "Scissors",
+        sortOrder: 3,
+      },
+      {
+        slug: "produksi-massal",
+        title: "Produksi Massal",
+        description:
+          "Layanan produksi dalam jumlah besar untuk kebutuhan corporate, event, sekolah, maupun reseller dengan harga kompetitif.",
+        tags: ["Grosir", "Corporate", "Event"],
+        icon: "Package",
+        sortOrder: 4,
+      },
+      {
+        slug: "jersey-komunitas",
+        title: "Jersey Komunitas",
+        description:
+          "Khusus untuk komunitas dan tim olahraga, kami menyediakan paket lengkap dari desain hingga pengiriman ke seluruh Indonesia.",
+        tags: ["Tim", "Komunitas", "Kompetisi"],
+        icon: "Users",
+        sortOrder: 5,
+      },
+      {
+        slug: "produksi-cepat",
+        title: "Produksi Cepat",
+        description:
+          "Tersedia layanan ekspres untuk kebutuhan mendesak. Kami berkomitmen menjaga kualitas meski dalam waktu singkat.",
+        tags: ["Ekspres", "On-Time", "Terjamin"],
+        icon: "Zap",
+        sortOrder: 6,
+      },
+    ]);
+    filled.services = 6;
+  }
+
+  if (await shouldFill(galleryItems, "galeri")) {
+    await db.insert(galleryItems).values([
+      { title: "Jersey Futsal Custom", category: "jersey", sortOrder: 1, imageUrl: "/media/cat-jersey.jpg" },
+      { title: "Jersey Bola Kompetisi", category: "jersey", sortOrder: 2, imageUrl: "/media/product/jersey-bola-klassio-1.jpg" },
+      { title: "Hoodie Komunitas", category: "jaket", sortOrder: 3, imageUrl: "/media/product/hoodie-street-raw-1.jpg" },
+      { title: "Varsity Jacket", category: "jaket", sortOrder: 4, imageUrl: "/media/product/varsity-college-jacket-1.jpg" },
+      { title: "Kaos Corporate", category: "kaos", sortOrder: 5, imageUrl: "/media/cat-kaos.jpg" },
+      { title: "Polo Shirt Custom", category: "polo", sortOrder: 6, imageUrl: "/media/product/polo-lacerte-corporate-1.jpg" },
+      { title: "Kemeja Custom", category: "kemeja", sortOrder: 7, imageUrl: "/media/cat-kemeja.jpg" },
+      { title: "Jersey Basket Custom", category: "jersey", sortOrder: 8, imageUrl: "/media/product/jersey-basket-court-1.jpg" },
+    ]);
+    filled.gallery = 8;
+  }
+
+  // Testimoni CONTOH (aktif agar Social Wall tampil). Ganti dengan testimoni
+  // asli pelanggan lewat /admin.
+  if (await shouldFill(testimonials, "testimoni")) {
+    await db.insert(testimonials).values([
+      {
+        name: "@arkantimfutsal",
+        role: "Tim Futsal (contoh)",
+        content:
+          "Jersey tim kami jadi rapi, bahan adem, dan desainnya persis seperti mockup. Pengerjaan sesuai jadwal.",
+        rating: 5,
+        sortOrder: 1,
+        isActive: true,
+      },
+      {
+        name: "@komunitasmotor06",
+        role: "Komunitas (contoh)",
+        content:
+          "Pemesanan hoodie komunitas 50 pcs lancar, admin fast response, dan hasil sablonnya awet.",
+        rating: 5,
+        sortOrder: 2,
+        isActive: true,
+      },
+      {
+        name: "@hrd.manufacturing",
+        role: "Corporate (contoh)",
+        content:
+          "Produksi kaos dan polo untuk event perusahaan selesai tepat waktu dengan kualitas konsisten.",
+        rating: 5,
+        sortOrder: 3,
+        isActive: true,
+      },
+    ]);
+    filled.testimonials = 3;
+  }
+
+  // Katalog produk (fallback = sumber data yang sama)
+  if (await shouldFill(productCategories, "kategori produk")) {
+    await db.insert(productCategories).values(fallbackCategories.map((c) => ({
+      slug: c.slug,
+      title: c.title,
+      sortOrder: c.sortOrder,
+      isActive: c.isActive,
+    })));
+    filled.categories = fallbackCategories.length;
+  }
+  if (await shouldFill(products, "produk")) {
+    await db.insert(products).values(fallbackProducts.map((p) => ({
+      slug: p.slug,
+      title: p.title,
+      description: p.description,
+      price: p.price,
+      comparePrice: p.comparePrice,
+      categorySlug: p.categorySlug,
+      audience: p.audience,
+      sizes: p.sizes,
+      materialCare: p.materialCare,
+      images: p.images,
+      isNew: p.isNew,
+      isOnSale: p.isOnSale,
+      sortOrder: p.sortOrder,
+      isActive: p.isActive,
+    })));
+    filled.products = fallbackProducts.length;
+  }
+  if (await shouldFill(drops, "drop")) {
+    await db.insert(drops).values(fallbackDrops.map((d) => ({
+      slug: d.slug,
+      title: d.title,
+      description: d.description,
+      story: d.story,
+      imageUrl: d.imageUrl,
+      sortOrder: d.sortOrder,
+      isActive: d.isActive,
+    })));
+    filled.drops = fallbackDrops.length;
+  }
+
+  // Relasi drop ↔ produk
+  // WAJIB: tanpa penghapusan ini, relasi lama menumpuk tiap re-seed → produk
+  // dobel di halaman drop (bug "shop the DROP" terdeteksi audit).
+  if (await shouldFill(dropProducts, "relasi drop-produk")) {
+    await db.insert(dropProducts).values(
+      Object.entries(DROP_PRODUCT_SLUGS).flatMap(([dropSlug, slugs]) =>
+        slugs.map((productSlug, i) => ({
+          dropSlug,
+          productSlug,
+          sortOrder: i + 1,
+        })),
+      ),
+    );
+    filled.dropProducts = Object.values(DROP_PRODUCT_SLUGS).reduce((a, s) => a + s.length, 0);
+  }
+
+  return filled;
+}
