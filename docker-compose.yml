@@ -28,8 +28,9 @@ services:
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-http://localhost:3000}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:?ADMIN_PASSWORD wajib diset di .env}
     ports:
-      # Reverse proxy (Nginx) menghadap sini; tidak diekspos ke publik
-      - "127.0.0.1:3000:3000"
+      # Deploy via Coolify: diekspos publik di port 3000 VPS
+      # (saat pakai Nginx reverse proxy sendiri, kembalikan ke 127.0.0.1:3000)
+      - "3000:3000"
 
 volumes:
   db_data:
