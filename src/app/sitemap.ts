@@ -1,11 +1,14 @@
 import type { MetadataRoute } from "next";
+import { connection } from "next/server";
 import { getDrops, getProducts } from "@/lib/data";
 
 /**
- * Sitemap dinamis: route statis + semua produk & drop aktif dari DB
- * (getProducts/getDrops ter-cache "use cache", jadi aman dipanggil di sini).
+ * Sitemap dinamis: route statis + semua produk & drop aktif dari DB.
+ * `connection()` memaksa render runtime — saat build belum ada DB, sehingga
+ * tanpa ini fallback 16 produk membeku di prerender (bug deploy 13 Nov).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
   const base = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   const staticRoutes = [
