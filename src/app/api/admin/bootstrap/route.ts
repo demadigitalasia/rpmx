@@ -1,6 +1,5 @@
 import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
-import { updateTag } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { getDb } from "@/db";
 import { seedContent } from "@/db/seed-content";
 import { ADMIN_COOKIE, adminToken } from "@/lib/admin";
@@ -25,11 +24,13 @@ export async function POST(request: Request): Promise<Response> {
   const fresh = new URL(request.url).searchParams.get("fresh") === "1";
   const filled = await seedContent(db, { fresh });
 
-  updateTag("services");
-  updateTag("gallery");
-  updateTag("testimonials");
-  updateTag("products");
-  updateTag("drops");
+  // Route Handler: updateTag TIDAK boleh (khusus Server Action) — pakai
+  // revalidateTag dengan profile yang sama dengan cacheLife datanya.
+  revalidateTag("services", "minutes");
+  revalidateTag("gallery", "minutes");
+  revalidateTag("testimonials", "minutes");
+  revalidateTag("products", "minutes");
+  revalidateTag("drops", "minutes");
   revalidatePath("/admin");
 
   return Response.json({ ok: true, fresh, filled });
