@@ -33,9 +33,13 @@ RUN addgroup -S nodejs && adduser -S nextjs -G nodejs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-# Migrasi dijalankan otomatis saat container start
+# Migrasi dijalankan otomatis saat container start (butuh env.mjs dari ./scripts)
 COPY --from=builder --chown=nextjs:nodejs /app/drizzle ./drizzle
-COPY --from=builder --chown=nextjs:nodejs /app/scripts/migrate.mjs ./scripts/migrate.mjs
+COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
+# Standalone tidak men-trace dependency migrasi (script di luar bundle Next) —
+# tanpa ini container crash-loop ERR_MODULE_NOT_FOUND saat start.
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/drizzle-orm ./node_modules/drizzle-orm
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/postgres ./node_modules/postgres
 
 USER nextjs
 EXPOSE 3000
