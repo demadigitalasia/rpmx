@@ -1,0 +1,27 @@
+{
+  "version": "7",
+  "dialect": "postgresql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "7",
+      "when": 1794158077127,
+      "tag": "0000_sour_randall_flagg",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1794163240588,
+      "tag": "0001_sharp_rocket_racer",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794403097000,
+      "tag": "0002_expand_product_catalog",
+      "breakpoints": true
+    }
+  ]
+}

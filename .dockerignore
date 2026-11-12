@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.video_agent
+.env
+.env.local
+.env*.local
+npm-debug.log*
+*.log
+Dockerfile
+docker-compose.yml
+rpmx-tmp

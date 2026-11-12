@@ -1,0 +1,206 @@
+@import "tailwindcss";
+
+/*
+ * RAWLINE design spec (RAWLINE_DESIGN_SPEC.md §1) — token RPMX:
+ * bg #111111 · surface #1A1A1A · ink #FFFFE3 · muted #787878
+ * accent = merah logo RPMX #E83030 ( RAWLINE pakai #EA301F )
+ */
+
+@theme inline {
+  --font-sans: var(--font-azeret);
+  --font-mono: var(--font-azeret);
+  --font-raw: var(--font-azeret);
+  --font-serif-accent: var(--font-serif-accent);
+
+  --color-raw: #111111;
+  --color-raw-ink: #ffffe3;
+  --color-raw-surface: #1a1a1a;
+  --color-raw-muted: #787878;
+  --color-raw-line: #2a2a2a;
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+}
+
+:root {
+  --accent: #e83030;
+  --accent-foreground: #ffffe3;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #111111;
+  color: #ffffe3;
+}
+
+::selection {
+  background-color: var(--accent);
+  color: #ffffe3;
+}
+
+/* --------------------------- Utilitas RAWLINE ----------------------------- */
+
+/* Grid teknis untuk latar dekoratif */
+@utility bg-grid {
+  background-image:
+    linear-gradient(to right, rgb(255 255 227 / 0.045) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(255 255 227 / 0.045) 1px, transparent 1px);
+  background-size: 54px 54px;
+}
+
+/* Bahasa scrim media tunggal (RAWLINE_GRADIENT_AUDIT.md §5):
+   semua overlay berbasis #111 agar menyatu dengan background halaman */
+@utility media-blend-bottom {
+  background-image: linear-gradient(
+    to bottom,
+    rgb(17 17 17 / 0.45),
+    rgb(17 17 17 / 0.15) 45%,
+    #111111 100%
+  );
+}
+
+/* Scrim keterbacaan teks di atas foto — gelap di bawah, memudar ke atas */
+@utility media-scrim {
+  background-image: linear-gradient(
+    to top,
+    rgb(17 17 17 / 0.85) 0%,
+    rgb(17 17 17 / 0.35) 40%,
+    transparent 72%
+  );
+}
+
+/* Fallback tile kosong — surface ke background halaman, tanpa #000 */
+@utility media-fallback {
+  background-image: linear-gradient(to bottom right, #1a1a1a, #111111);
+}
+
+@utility animate-marquee {
+  animation: marquee 32s linear infinite;
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* Catatan: page transition via animasi sengaja dihapus — sempat membuat
+   konten tersembunyi (opacity 0) pada tab yang di-throttle. Kehandalan
+   render > polesan transisi. */
+
+/* M1 — Entrance veil (RAWLINE_MOTION_REPORT §M1): halaman fade-in dari
+   hitam saat dibuka, replika persis perilaku RAWLINE. Murni CSS — selesai
+   sendiri walau tab di-throttle; hormati prefers-reduced-motion. */
+@keyframes site-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+main {
+  animation: site-in 0.7s ease-out;
+}
+
+header,
+.wa-float {
+  animation: site-in 0.4s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  main,
+  header,
+  .wa-float {
+    animation: none;
+  }
+}
+
+@utility text-skew {
+  transform: skewX(-6deg);
+  display: inline-block;
+}
+
+/* Serif italic aksen — prefiks heading komposit & kata nama (§2.2) */
+@utility font-serif-italic {
+  font-family: var(--font-serif-accent);
+  font-style: italic;
+  font-weight: 600;
+  text-transform: none;
+}
+
+/* Heading komposit: <span serif italic>kata</span> <span mono merah>KATA</span> */
+@utility heading-word {
+  font-family: var(--font-azeret);
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
+  letter-spacing: -0.04em;
+}
+
+/* Tombol kotak brutalis (footer, tabs) — border 1px, hover invert */
+@utility btn-boxed {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 227 / 0.55);
+  font-family: var(--font-azeret);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+@utility btn-boxed-hover {
+  &:hover {
+    background-color: #ffffe3;
+    color: #111111;
+  }
+}
+
+/* Tombol aksen merah */
+@utility btn-accent {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: var(--accent);
+  color: #ffffe3;
+  font-family: var(--font-azeret);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  transition:
+    filter 0.25s ease,
+    transform 0.25s ease;
+
+  &:hover {
+    filter: brightness(1.12);
+  }
+}
+
+/* Input underline merah (newsletter, form) */
+@utility input-underline {
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--accent);
+  font-family: var(--font-azeret);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  outline: none;
+
+  &::placeholder {
+    color: rgb(255 255 227 / 0.35);
+  }
+
+  &:focus {
+    border-bottom-width: 2px;
+  }
+}
