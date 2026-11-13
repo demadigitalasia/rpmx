@@ -1,7 +1,7 @@
 "use server";
 
 import { eq, sql } from "drizzle-orm";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath, updateTag } from "next/cache";
 import { getDb } from "@/db";
@@ -15,7 +15,13 @@ import {
   siteSettings,
   testimonials,
 } from "@/db/schema";
-import { ADMIN_COOKIE, adminToken } from "@/lib/admin";
+import {
+  ADMIN_COOKIE,
+  adminToken,
+  clearLoginFailures,
+  loginBlockMinutes,
+  recordLoginFailure,
+} from "@/lib/admin";
 import { validateProdEnv } from "@/lib/env-check";
 import { inquiryStatuses } from "@/lib/site";
 
@@ -28,13 +34,23 @@ async function isAuthenticated(): Promise<boolean> {
 
 export async function loginAction(formData: FormData): Promise<void> {
   validateProdEnv(); // gagal cepat di produksi bila ADMIN_PASSWORD lemah/absen (TASK E)
+
+  // Rate limit (audit P1-2): 5 password gagal dari satu IP → blokir 15 menit.
+  const ip =
+    (await headers()).get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (loginBlockMinutes(ip) > 0) {
+    redirect("/admin?error=2");
+  }
+
   const password = String(formData.get("password") ?? "");
   const expected = process.env.ADMIN_PASSWORD;
 
   if (!expected || password !== expected) {
+    recordLoginFailure(ip);
     redirect("/admin?error=1");
   }
 
+  clearLoginFailures(ip);
   const store = await cookies();
   store.set(ADMIN_COOKIE, adminToken(expected), {
     httpOnly: true,

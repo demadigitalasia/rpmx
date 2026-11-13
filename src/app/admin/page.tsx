@@ -85,7 +85,12 @@ export default async function AdminPage({
   searchParams,
 }: PageProps<"/admin">) {
   const params = await searchParams;
-  const loginError = params.error === "1";
+  const loginError =
+    params.error === "1"
+      ? "Password salah — coba lagi"
+      : params.error === "2"
+        ? "Terlalu banyak percobaan gagal — tunggu 15 menit"
+        : null;
   const one = (v: unknown) => (typeof v === "string" ? v : "");
   const perr = one(params.perr);
   const pok = one(params.pok);
@@ -155,7 +160,7 @@ export default async function AdminPage({
                   role="alert"
                   className="border border-accent bg-accent/10 px-4 py-3 font-raw text-xs font-bold uppercase tracking-[0.14em] text-accent"
                 >
-                  Password salah — coba lagi
+                  {loginError}
                 </p>
               )}
               <button type="submit" className="btn-accent w-full px-5 py-3.5 text-sm">
