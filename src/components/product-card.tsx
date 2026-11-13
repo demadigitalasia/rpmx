@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { ProductRow } from "@/db/schema";
 import { WishlistButton } from "@/components/wishlist/wishlist-button";
@@ -38,19 +39,21 @@ export function ProductCard({ product }: { product: ProductRow }) {
       <div className="relative aspect-[3/4] overflow-hidden">
         {product.images.length > 0 ? (
           <>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={product.images[0]}
               alt={product.title}
-              className="h-full w-full object-cover brightness-110 transition-[transform,filter] duration-500 group-hover:scale-105 group-hover:brightness-125"
+              fill
+              sizes="(min-width:1024px) 33vw, 50vw"
+              className="object-cover brightness-110 transition-[transform,filter] duration-500 group-hover:scale-105 group-hover:brightness-125"
             />
             {product.images[1] && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={product.images[1]}
                 alt=""
                 aria-hidden="true"
-                className="absolute inset-0 h-full w-full object-cover brightness-110 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                fill
+                sizes="(min-width:1024px) 33vw, 50vw"
+                className="object-cover brightness-110 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
               />
             )}
           </>

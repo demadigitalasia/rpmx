@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BuyPanel } from "@/components/cart/buy-panel";
@@ -148,8 +149,13 @@ export default async function ProductPage({
                 className="relative aspect-[3/4] overflow-hidden border border-raw-line bg-raw-surface"
               >
                 {src ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={src} alt={`${product.title} — ${i + 1}`} className="h-full w-full object-cover" />
+                  <Image
+                    src={src}
+                    alt={`${product.title} — ${i + 1}`}
+                    fill
+                    sizes="(min-width:1024px) 40vw, 100vw"
+                    className="object-cover"
+                  />
                 ) : (
                   <div className="absolute inset-0 media-fallback">
                     <span className="absolute inset-0 flex items-center justify-center font-raw text-8xl font-bold uppercase text-raw-ink/10">

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
@@ -84,11 +85,12 @@ export default async function DropDetailPage({
               className="relative aspect-[4/3] overflow-hidden border border-raw-line bg-raw-surface"
             >
               {drop.imageUrl ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={drop.imageUrl}
                   alt={`${drop.title} — lookbook ${i + 1}`}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(min-width:1024px) 90vw, 100vw"
+                  className="object-cover"
                 />
               ) : (
                 <div className="absolute inset-0 media-fallback">

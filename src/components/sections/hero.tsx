@@ -70,10 +70,12 @@ export function Hero({ quickProducts }: { quickProducts: ProductRow[] }) {
                   className="group flex items-center gap-3 py-2.5 transition-colors hover:bg-raw-surface"
                 >
                   {product.images[0] && (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={product.images[0]}
                       alt={product.title}
+                      width={64}
+                      height={64}
+                      sizes="64px"
                       className="h-16 w-16 shrink-0 object-cover"
                     />
                   )}
