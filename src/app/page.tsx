@@ -49,7 +49,11 @@ export default async function HomePage() {
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          // Escape "<" agar nilai dari Pengaturan Situs (CMS) tidak bisa menutup
+          // tag <script> lebih awal — pola wajib dari panduan JSON-LD Next.
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
       />
 
       {/* §3.1.1 Hero — media asli */}
