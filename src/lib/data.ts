@@ -1,4 +1,4 @@
-import { asc, eq } from "drizzle-orm";
+import { and, asc, eq } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { getDb } from "@/db";
 import {
@@ -122,7 +122,7 @@ export async function getProductBySlug(
       const rows = await db
         .select()
         .from(products)
-        .where(eq(products.slug, slug))
+        .where(and(eq(products.slug, slug), eq(products.isActive, true)))
         .limit(1);
       if (rows[0]) return rows[0];
     }
@@ -182,7 +182,7 @@ export async function getDropBySlug(slug: string): Promise<DropRow | undefined> 
       const rows = await db
         .select()
         .from(drops)
-        .where(eq(drops.slug, slug))
+        .where(and(eq(drops.slug, slug), eq(drops.isActive, true)))
         .limit(1);
       if (rows[0]) return rows[0];
     }

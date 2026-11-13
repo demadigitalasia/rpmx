@@ -28,6 +28,7 @@ export default async function KontakPage({
       <div className="pointer-events-none absolute inset-0 bg-grid [mask-image:radial-gradient(ellipse_60%_60%_at_50%_30%,black,transparent)]" />
       <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <SectionHeading
+          as="h1"
           prefix="hubungi"
           word="Kami"
           description="Isi formulir di bawah — tim kami akan menghubungi Anda dengan estimasi harga dan waktu pengerjaan. Tanpa komitmen."
