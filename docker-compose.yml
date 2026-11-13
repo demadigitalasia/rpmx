@@ -31,6 +31,38 @@ services:
       # Deploy via Coolify: diekspos publik di port 3000 VPS
       # (saat pakai Nginx reverse proxy sendiri, kembalikan ke 127.0.0.1:3000)
       - "3000:3000"
+    healthcheck:
+      # Cek app (bukan DB): DB down jangan restart app — app dirancang hidup
+      # dengan fallback konten. Detail status DB ada di GET /api/health.
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/robots.txt >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+  db-backup:
+    # Sidecar backup harian (audit P1-4): pg_dump custom-format ke volume,
+    # rotasi 14 hari. Restore: pg_restore -h db -U $POSTGRES_USER -d rpmx <file>
+    image: postgres:17-alpine
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGHOST: db
+      PGPORT: "5432"
+      PGUSER: ${POSTGRES_USER:-rpmx}
+      PGPASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD wajib diset di .env}
+      PGDATABASE: ${POSTGRES_DB:-rpmx}
+    volumes:
+      - db_backups:/backups
+    command: >
+      sh -c 'while true; do
+        pg_dump -Fc -f /backups/rpmx-$$(date +%Y%m%d-%H%M%S).dump && echo "[backup] ok";
+        find /backups -name "*.dump" -mtime +14 -delete;
+        sleep 86400;
+      done'
 
 volumes:
   db_data:
+  db_backups:

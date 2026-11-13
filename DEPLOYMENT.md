@@ -117,7 +117,25 @@ saat container start.
 
 ## 6. Backup Database (Penting!)
 
-Backup harian pukul 02.00, disimpan 14 hari:
+**Otomatis via sidecar `db-backup` (bawaan docker-compose.yml):** sekali sehari
+`pg_dump -Fc` ke volume `db_backups`, rotasi 14 hari. Backup pertama jalan
+saat container start, lalu setiap 24 jam. Cek isi:
+
+```bash
+docker compose exec db-backup ls -lh /backups
+```
+
+Restore dari file dump custom-format:
+
+```bash
+docker compose exec db pg_restore -U rpmx -d rpmx --clean /backups/rpmx-YYYYMMDD-HHMMSS.dump
+```
+
+> ⚠️ `--clean` menimpa data lama — pastikan dump-nya dulu dengan
+> `pg_restore --list /backups/<file>` sebelum restore.
+> Backup tetap hidup di volume Docker yang sama dengan data → idealnya
+> disalin berkala ke luar VPS (cron `docker cp` ke `/var/backups` + rsync).
+> Panduan cron manual di bawah tetap berlaku sebagai lapisan kedua:
 
 ```bash
 sudo tee /etc/cron.d/rpmx-backup > /dev/null <<'EOF'
@@ -127,6 +145,14 @@ EOF
 
 > Ganti `USER` dengan username VPS Anda. Restore:
 > `gunzip -c rpmx-2026-01-01.sql.gz | docker compose exec -T db psql -U rpmx rpmx`
+
+## 6b. Monitoring & Health
+
+- **Healthcheck container** (compose `app`): wget `robots.txt` tiap 30s —
+  status terlihat di `docker compose ps` / Coolify.
+- **`GET /api/health`**: selalu 200 saat app hidup; body `{ status: "ok", db: "up"|"down" }`.
+  Pakai sebagai URL uptime monitor eksternal (mis. UptimeRobot) — alert
+  email/Telegram saat situs mati atau `db` turun lebih lama.
 
 ## 7. Perintah Berguna
 
